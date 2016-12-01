@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 
 public class Version extends Object {
 	//Use this as the standard: http://semver.org/spec/v2.0.0.html
+	//NOTE: It might be a good idea to change compareToVersion() to versionObject.isNewerThan() or something like that.
 	
 	protected static final Pattern prPattern = Pattern.compile("-[0-9a-zA-Z\\.]{2,"+Integer.MAX_VALUE+"}");
 	protected static final Pattern bmPattern = Pattern.compile("\\+[0-9a-zA-Z\\.]{2,"+Integer.MAX_VALUE+"}");
@@ -18,11 +19,10 @@ public class Version extends Object {
 	protected String preRelease, buildMetadata;
 	
 	/**
-	 * This constructor should only be used to create Version objects manually and step-by-step.
+	 * This constructor should only be used to create a Version object manually and step-by-step.<br>
+	 * Default version: 0.0.0
 	 */
-	public Version() {
-		//?
-	}
+	public Version() {}
 	
 	public Version(int majorVersion, int minorVersion, int patchVersion) throws IllegalVersionFormatException {
 		this(majorVersion, minorVersion, patchVersion, null, null);
@@ -89,7 +89,17 @@ public class Version extends Object {
 			this.buildMetadata = null;
 	}
 	
-	//The name is confusing return the state of the version in par1.
+	//Used to test retro-compatibility (see "semver" specs for more info).
+	public boolean isCompatibleWith(Version version) {
+		return !(this.majorVersion != version.getMajorVersion());
+	}
+	
+	public static boolean areVersionsCompatible(Version ver1, Version ver2) {
+		return !(ver1.getMajorVersion()!= ver2.getMajorVersion());
+	}
+	
+	//The name is confusing return the state of the version in par1. - See note on top.
+	@Deprecated
 	public int compareToVersion(Version version) {
 		if(version.majorVersion > this.majorVersion)
 			return Version.NEWER_VERSION;
@@ -99,6 +109,7 @@ public class Version extends Object {
 		return Version.SAME_VERSION;
 	}
 	
+	//Getters
 	public int getMajorVersion() {
 		return this.majorVersion;
 	}
@@ -127,6 +138,7 @@ public class Version extends Object {
 		return this.friendlyName;
 	}
 	
+	//Setters
 	public boolean setMajorVersion(int newMajorVersion) {
 		if(newMajorVersion < 0)
 			return false;
@@ -153,6 +165,7 @@ public class Version extends Object {
 		this.friendlyName = a;
 	}
 	
+	//Override(s)
 	@Override
 	public String toString() {
 		return (this.majorVersion+"."+this.minorVersion+"."+this.patchVersion+this.preRelease+this.buildMetadata).replaceAll("null", "");
